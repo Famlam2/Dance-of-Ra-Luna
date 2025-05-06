@@ -1,10 +1,26 @@
-/* TODO: Figure out how to change background color */
+/* TODO: Figure out how to change background color on death */
 
 body {
     font-family: Geneva, serif;
     color: white;
     text-align: center;
     background-color: #05052e;
+}
+
+#lore {
+    width: 485px;
+    height: 165px;
+    display: flex;
+    background-color: #6561aa;
+    
+    font-family: Geneva, serif;
+    font-size: 20px;
+    color: white;
+    line-height: 40px;
+    
+    margin: 20px auto 0;
+    border: 3px solid white;
+    border-radius: 25px;
 }
 
 #game-over {
@@ -32,6 +48,6 @@ body {
     align-content: center;
 
     /* Grid */
-    border: 3px dotted white;
-    border-radius: 100px;
+    /*border: 3px dotted white;*/
+    /*border-radius: 100px;*/
 }

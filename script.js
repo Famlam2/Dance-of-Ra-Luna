@@ -1,7 +1,8 @@
-let curGoodTile;
-let curBadTile;
+let curSunTile;
+let curMoonTile;
 let speed = 20;
 let tilesShown = 0;
+let tilesSinceClick = 0;
 let score = 0;
 let gameOver = false;
 let clicked = false;
@@ -17,7 +18,7 @@ function prepGame() {
         tile.addEventListener("click", selectTile);
         document.getElementById("board").appendChild(tile);
     }
-    changeTileTimeout();
+    setTimeout(changeTileTimeout, 7500);
 }
 
 function getRandomNum(r) {
@@ -25,44 +26,56 @@ function getRandomNum(r) {
     return num.toString();
 }
 
-function setGoodTile() {
-    if (curGoodTile) {
-        curGoodTile.innerHTML = "";
+function setSunTile() {
+    if (gameOver) {
+        return;
     }
     
-    let goodTile = document.createElement("img");
-    goodTile.src = "good-tile.png";
-
+    if (curSunTile) {
+        curSunTile.innerHTML = "";
+    }
+    
+    let sunTile = document.createElement("img");
+    sunTile.src = "good-tile.png";
     let num = getRandomNum(15);
-    while (curBadTile && curBadTile.id === num) {
+    while (curMoonTile && curMoonTile.id === num) {
         num = getRandomNum(15);
     }
-    curGoodTile = document.getElementById(num);
-    curGoodTile.appendChild(goodTile);
     
+    curSunTile = document.getElementById(num);
+    curSunTile.appendChild(sunTile);
     tilesShown++;
+    tilesSinceClick++;
+    clicked = false;
     changeTileTimeout();
 }
 
 function setBadTile() {
-    if (curBadTile) {
-        curBadTile.innerHTML = "";
+    if (gameOver) {
+        return;
     }
     
-    let badTile = document.createElement("img");
-    badTile.src = "bad-tile.png";
+    if (curMoonTile) {
+        curMoonTile.innerHTML = "";
+    }
     
+    let moonTile = document.createElement("img");
+    moonTile.src = "bad-tile.png";
     let num = getRandomNum(15);
-    while (curGoodTile && curGoodTile.id === num) {
+    while (curSunTile && curSunTile.id === num) {
         num = getRandomNum(15);
     }
-    curBadTile = document.getElementById(num);
-    curBadTile.appendChild(badTile);
     
-    clicked = false;
+    curMoonTile = document.getElementById(num);
+    curMoonTile.appendChild(moonTile);
 }
 
-function changeTileTimeout(f) {
+function changeTileTimeout() {
+    if (tilesSinceClick >= 5) {
+        document.getElementById("score").innerText = "The world is plunged into darkness after " + score + " successful charge(s).\nClick on the sun to retry.";
+        gameOver = true;
+    }
+    
     if (gameOver) {
         return;
     }
@@ -76,23 +89,35 @@ function changeTileTimeout(f) {
     while (t < (speed * 100)/4) {
         t = getRandomNum(speed) * 100;
     }
-    setTimeout(setGoodTile, t);
+    setTimeout(setSunTile, t);
     setTimeout(setBadTile, t);
 }
 
 function selectTile() {
+    if (this === curSunTile && gameOver) {
+        curSunTile.innerHTML = "";
+        curMoonTile.innerHTML = "";
+        speed = 20;
+        tilesShown = 0;
+        tilesSinceClick = 0;
+        score = -1;    // Otherwise it starts with a score of 1
+        gameOver = false;
+        clicked = false;
+        changeTileTimeout();
+        document.getElementById("score").innerText = "Charges: 0";
+    }
+    
     if (gameOver) {
         return;
     }
-    if (this === curGoodTile && !clicked) {
+    if (this === curSunTile && !clicked) {
         score++;
         clicked = true;
-        document.getElementById("score").innerHTML = score.toString();
+        tilesSinceClick = 0;
+        document.getElementById("score").innerHTML = "Charges: " + score.toString();
     }
-    else if (this === curBadTile) {
-        document.getElementById("score").innerText = "The world is plunged into darkness after " + score + " successful charge(s)";
-        clearTimeout(setGoodTile);
-        clearTimeout(setBadTile);
+    else if (this === curMoonTile) {
+        document.getElementById("score").innerText = "The world is plunged into darkness after " + score + " successful charge(s).\nClick the sun to retry.";
         gameOver = true;
     }
 }
