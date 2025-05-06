@@ -1,0 +1,37 @@
+/* TODO: Figure out how to change background color */
+
+body {
+    font-family: Geneva, serif;
+    color: white;
+    text-align: center;
+    background-color: #05052e;
+}
+
+#game-over {
+    font-family: Geneva, serif;
+    color: white;
+    text-align: center;
+    background-color: black;
+}
+
+#board {
+    width: 570px;
+    height: 570px;
+    background-color: #6561aa;
+    
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    border: 3px solid white;
+    border-radius: 25px;
+}
+
+#board div {
+    width: 108px;
+    height: 108px;
+    align-content: center;
+
+    /* Grid */
+    border: 3px dotted white;
+    border-radius: 100px;
+}
