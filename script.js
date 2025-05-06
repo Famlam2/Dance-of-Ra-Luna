@@ -71,7 +71,7 @@ function setBadTile() {
 }
 
 function changeTileTimeout() {
-    if (tilesSinceClick >= 5) {
+    if (tilesSinceClick > 5) {
         document.getElementById("score").innerText = "The world is plunged into darkness after " + score + " successful charge(s).\nClick on the sun to retry.";
         gameOver = true;
     }
