@@ -37,7 +37,7 @@ function setSunTile() {
     }
     
     let sunTile = document.createElement("img");
-    sunTile.src = "good-tile.png";
+    sunTile.src = "sol.png";
     let num = getRandomNum(15);
     while (curMoonTile && curMoonTile.id === num) {
         num = getRandomNum(15);
@@ -61,7 +61,7 @@ function setMoonTile() {
     }
     
     let moonTile = document.createElement("img");
-    moonTile.src = "bad-tile.png";
+    moonTile.src = "hecate.png";
     let num = getRandomNum(15);
     while (curSunTile && curSunTile.id === num) {
         num = getRandomNum(15);
@@ -73,6 +73,7 @@ function setMoonTile() {
 
 function changeTileTimeout() {
     if (tilesSinceClick > 5) {
+        curSunTile.style.opacity = "50%";
         document.getElementById("score").innerText = "The world is plunged into darkness after " + score + " successful charge(s).\nClick on the sun to retry.";
         gameOver = true;
     }
@@ -104,14 +105,17 @@ function selectTile() {
         speed = 20;
         tilesShown = 0;
         tilesSinceClick = 0;
-        score = -1;    // Otherwise it starts with a score of 1
+        score = 0;
         gameOver = false;
         clicked = false;
         changeTileTimeout();
         document.getElementById("score").innerText = "Charges: 0";
         return;
     }
-    
+
+    if(gameOver) {
+        return;
+    }
     if (this === curSunTile && !clicked) {
         curSunTile.style.boxShadow = "0 0 100px yellow";
         score++;
@@ -120,6 +124,7 @@ function selectTile() {
         document.getElementById("score").innerHTML = "Charges: " + score.toString();
     }
     else if (this === curMoonTile) {
+        curSunTile.style.boxShadow = "none";
         curMoonTile.style.boxShadow = "0 0 100px black";
         curSunTile.style.opacity = "50%";
         document.getElementById("score").innerText = "The world is plunged into darkness after " + score + " successful charge(s).\nClick the sun to retry.";
