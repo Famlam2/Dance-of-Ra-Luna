@@ -33,6 +33,7 @@ function setSunTile() {
     
     if (curSunTile) {
         curSunTile.innerHTML = "";
+        curSunTile.style.boxShadow = "none";
     }
     
     let sunTile = document.createElement("img");
@@ -50,7 +51,7 @@ function setSunTile() {
     changeTileTimeout();
 }
 
-function setBadTile() {
+function setMoonTile() {
     if (gameOver) {
         return;
     }
@@ -90,11 +91,14 @@ function changeTileTimeout() {
         t = getRandomNum(speed) * 100;
     }
     setTimeout(setSunTile, t);
-    setTimeout(setBadTile, t);
+    setTimeout(setMoonTile, t);
 }
 
 function selectTile() {
     if (this === curSunTile && gameOver) {
+        curSunTile.style.boxShadow = "none";
+        curSunTile.style.opacity = "100%";
+        curMoonTile.style.boxShadow = "none";
         curSunTile.innerHTML = "";
         curMoonTile.innerHTML = "";
         speed = 20;
@@ -105,18 +109,19 @@ function selectTile() {
         clicked = false;
         changeTileTimeout();
         document.getElementById("score").innerText = "Charges: 0";
-    }
-    
-    if (gameOver) {
         return;
     }
+    
     if (this === curSunTile && !clicked) {
+        curSunTile.style.boxShadow = "0 0 100px yellow";
         score++;
         clicked = true;
         tilesSinceClick = 0;
         document.getElementById("score").innerHTML = "Charges: " + score.toString();
     }
     else if (this === curMoonTile) {
+        curMoonTile.style.boxShadow = "0 0 100px black";
+        curSunTile.style.opacity = "50%";
         document.getElementById("score").innerText = "The world is plunged into darkness after " + score + " successful charge(s).\nClick the sun to retry.";
         gameOver = true;
     }

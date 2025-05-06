@@ -1,5 +1,10 @@
 /* TODO: Figure out how to change background color on death */
 
+html {
+    cursor: crosshair;
+    user-select: none;
+}
+
 body {
     font-family: Geneva, serif;
     color: white;
@@ -11,7 +16,7 @@ body {
     width: 485px;
     height: 165px;
     display: flex;
-    background-color: #6561aa;
+    background-color: #3b386e;
     
     font-family: Geneva, serif;
     font-size: 20px;
@@ -19,7 +24,7 @@ body {
     line-height: 40px;
     
     margin: 20px auto 0;
-    border: 3px solid white;
+    border: 3px dotted white;
     border-radius: 25px;
 }
 
@@ -47,7 +52,5 @@ body {
     height: 108px;
     align-content: center;
 
-    /* Grid */
-    /*border: 3px dotted white;*/
-    /*border-radius: 100px;*/
+    border-radius: 100px;
 }
