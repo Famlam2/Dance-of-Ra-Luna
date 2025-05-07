@@ -4,6 +4,7 @@ let speed = 20;
 let tilesShown = 0;
 let tilesSinceClick = 0;
 let score = 0;
+let initialGameStarted = false;
 let gameOver = false;
 let clicked = false;
 
@@ -18,7 +19,7 @@ function prepGame() {
         tile.addEventListener("click", selectTile);
         document.getElementById("board").appendChild(tile);
     }
-    setTimeout(changeTileTimeout, 7500);
+    changeTileTimeout();
 }
 
 function getRandomNum(r) {
@@ -39,16 +40,18 @@ function setSunTile() {
     let sunTile = document.createElement("img");
     sunTile.src = "sol.png";
     let num = getRandomNum(15);
-    while (curMoonTile && curMoonTile.id === num) {
+    while ((curMoonTile && curMoonTile.id === num) || (curSunTile && curSunTile.id === num)) {
         num = getRandomNum(15);
     }
     
     curSunTile = document.getElementById(num);
     curSunTile.appendChild(sunTile);
-    tilesShown++;
-    tilesSinceClick++;
-    clicked = false;
-    changeTileTimeout();
+    if (initialGameStarted) {
+        tilesShown++;
+        tilesSinceClick++;
+        clicked = false;
+        changeTileTimeout();
+    }
 }
 
 function setMoonTile() {
@@ -63,7 +66,7 @@ function setMoonTile() {
     let moonTile = document.createElement("img");
     moonTile.src = "hecate.png";
     let num = getRandomNum(15);
-    while (curSunTile && curSunTile.id === num) {
+    while ((curSunTile && curSunTile.id === num) || (curMoonTile && curMoonTile.id === num)) {
         num = getRandomNum(15);
     }
     
@@ -81,18 +84,25 @@ function changeTileTimeout() {
     if (gameOver) {
         return;
     }
-    
-    let t;
-    if (tilesShown % 10 === 0 && speed > 8) {
-        speed -= 2;
-    }
-    
-    t = getRandomNum(speed) * 100;
-    while (t < (speed * 100)/4) {
+
+    if (initialGameStarted) {
+        let t;
+        if (tilesShown % 10 === 0 && speed > 8) {
+            speed -= 2;
+        }
+
         t = getRandomNum(speed) * 100;
+        while (t < (speed * 100) / 4) {
+            t = getRandomNum(speed) * 100;
+        }
+        setTimeout(setSunTile, t);
+        setTimeout(setMoonTile, t);
     }
-    setTimeout(setSunTile, t);
-    setTimeout(setMoonTile, t);
+    else {
+        document.getElementById("score").innerText = "Charge the sun to start.";
+        setSunTile();
+        setMoonTile();
+    }
 }
 
 function selectTile() {
@@ -117,15 +127,19 @@ function selectTile() {
         return;
     }
     if (this === curSunTile && !clicked) {
-        curSunTile.style.boxShadow = "0 0 100px yellow";
+        curSunTile.style.boxShadow = "inset 0 0 100px yellow";
         score++;
         clicked = true;
         tilesSinceClick = 0;
         document.getElementById("score").innerHTML = "Charges: " + score.toString();
+        if (!initialGameStarted) {
+            initialGameStarted = true;
+            changeTileTimeout();
+        }
     }
     else if (this === curMoonTile) {
         curSunTile.style.boxShadow = "none";
-        curMoonTile.style.boxShadow = "0 0 100px black";
+        curMoonTile.style.boxShadow = "inset 0 0 100px black";
         curSunTile.style.opacity = "50%";
         document.getElementById("score").innerText = "The world is plunged into darkness after " + score + " successful charge(s).\nClick the sun to retry.";
         gameOver = true;
