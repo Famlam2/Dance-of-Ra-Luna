@@ -26,11 +26,18 @@ body {
     border-radius: 25px;
 }
 
+#credit {
+    font-family: Geneva, serif;
+    color: white;
+    text-align: center;
+
+    font-size: 18px;
+}
+
 #game-over {
     font-family: Geneva, serif;
     color: white;
     text-align: center;
-    background-color: black;
 }
 
 #board {
