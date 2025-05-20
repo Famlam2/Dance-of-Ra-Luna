@@ -1,5 +1,3 @@
-// TODO: Snail sounds, aesthetic finalisation
-
 let curSunTile;
 let curMoonTile;
 let curSnailTile;
@@ -11,14 +9,17 @@ let initialGameStarted = false;
 let gameOver = false;
 let sunClicked = false;
 let snailClicked = false;
+
+// Sound effects have individual audio variables so they can be preloaded
 let chargeAudio = new Audio("SFX/charge.mp3");
 chargeAudio.preload = "auto";
 let loseAudio = new Audio("SFX/lose.mp3");
 loseAudio.preload = "auto";
 let slowDownAudio = new Audio("SFX/slow down.mp3");
+slowDownAudio.volume = 0.5;
 slowDownAudio.preload = "auto";
-let cancelAudio = new Audio("SFX/cancel.mp3");
-cancelAudio.preload = "auto";
+let voidAudio = new Audio("SFX/void.mp3");
+voidAudio.preload = "auto";
 
 window.onload = function() {
     prepGame();
@@ -28,7 +29,7 @@ function prepGame() {
     chargeAudio.load();
     loseAudio.load();
     slowDownAudio.load();
-    cancelAudio.load();
+    voidAudio.load();
     for (let i = 0; i < 25; i++) {
         let tile = document.createElement("div");
         tile.id = i.toString();
@@ -38,9 +39,8 @@ function prepGame() {
     changeTileTimeout();
 }
 
-function getRandomNum(r) {
-    let num = Math.floor(Math.random() * r);
-    return num.toString();
+function getRanNum(r) {
+    return Math.floor(Math.random() * r).toString();
 }
 
 function setSunTile() {
@@ -55,13 +55,14 @@ function setSunTile() {
     
     let sunTile = document.createElement("img");
     sunTile.src = "Sprites/sol.png";
-    let num = getRandomNum(15);
+    let num = getRanNum(20);
     while ((curMoonTile && curMoonTile.id === num) || (curSunTile && curSunTile.id === num) || (curSnailTile && curSnailTile.id === num)) {
-        num = getRandomNum(15);
+        num = getRanNum(15);
     }
     
     curSunTile = document.getElementById(num);
     curSunTile.appendChild(sunTile);
+    console.log("Set sun to " + num);
     if (initialGameStarted) {
         tilesShown++;
         tilesSinceClick++;
@@ -81,9 +82,9 @@ function setMoonTile() {
     
     let moonTile = document.createElement("img");
     moonTile.src = "Sprites/hecate.png";
-    let num = getRandomNum(15);
+    let num = getRanNum(15);
     while ((curSunTile && curSunTile.id === num) || (curMoonTile && curMoonTile.id === num) || (curSnailTile && curSnailTile.id === num)) {
-        num = getRandomNum(15);
+        num = getRanNum(15);
     }
     
     curMoonTile = document.getElementById(num);
@@ -95,23 +96,23 @@ function checkSnailTile() {
         return;
     }
 
+    snailClicked = false;
     if (curSnailTile) {
-        snailClicked = false;
         curSnailTile.innerHTML = "";
         curSnailTile.style.boxShadow = "none";
     }
 
-    let ranChance = Math.floor(Math.random() * 25);
-    if (ranChance !== 1 || speed === 20) {
+    let ranChance = getRanNum(15);
+    if (ranChance !== "1" || speed === 20) {
         snailClicked = true;
         return;
     }
 
     let snailTile = document.createElement("img");
     snailTile.src = "Sprites/snail.png";
-    let num = getRandomNum(15);
+    let num = getRanNum(15);
     while ((curSunTile && curSunTile.id === num) || (curMoonTile && curMoonTile.id === num) || (curSnailTile && curSnailTile.id === num)) {
-        num = getRandomNum(15);
+        num = getRanNum(15);
     }
 
     curSnailTile = document.getElementById(num);
@@ -122,7 +123,7 @@ function changeTileTimeout() {
     if (tilesSinceClick > 5) {
         loseAudio.play();
         curSunTile.style.opacity = "50%";
-        document.getElementById("score").innerText += "\nClick on the sun to retry.";
+        document.getElementById("score").innerText = "The sun died after " + score + " charge(s) at a speed of " + (20 - speed)/2 + "\nClick the sun to retry.";
         gameOver = true;
     }
     
@@ -137,16 +138,16 @@ function changeTileTimeout() {
             document.getElementById("score").innerText = "Charges: " + score.toString() + "\nSpeed: " + ((20 - speed)/2).toString();
         }
 
-        t = getRandomNum(speed) * 100;
+        t = getRanNum(speed) * 100;
         while (t < (speed * 100) / 4) {
-            t = getRandomNum(speed) * 100;
+            t = getRanNum(speed) * 100;
         }
+        setTimeout(checkSnailTile, t);
         setTimeout(setSunTile, t);
         setTimeout(setMoonTile, t);
-        setTimeout(checkSnailTile, t);
     }
     else {
-        document.getElementById("score").innerText = "Charge the sun to start.";
+        document.getElementById("score").innerText = "Click on the sun to start.\nGood luck!";
         setSunTile();
         setMoonTile();
     }
@@ -154,12 +155,15 @@ function changeTileTimeout() {
 
 function selectTile() {
     if (this === curSunTile && gameOver) {
+        chargeAudio.currentTime = 0;
         chargeAudio.play();
         curSunTile.style.boxShadow = "none";
         curSunTile.style.opacity = "100%";
         curMoonTile.style.boxShadow = "none";
         curSunTile.innerHTML = "";
         curMoonTile.innerHTML = "";
+        curSnailTile.innerHTML = "";
+        snailClicked = true;
         speed = 20;
         tilesShown = 0;
         tilesSinceClick = 0;
@@ -171,10 +175,12 @@ function selectTile() {
         return;
     }
 
-    if(gameOver) {
+    if (gameOver) {
         return;
     }
+
     if (this === curSunTile && !sunClicked) {
+        chargeAudio.currentTime = 0;
         chargeAudio.play();
         curSunTile.style.boxShadow = "inset 0 0 100px yellow";
         score++;
@@ -186,23 +192,26 @@ function selectTile() {
             changeTileTimeout();
         }
     }
-    if (this === curMoonTile) {
+    else if (this === curMoonTile && initialGameStarted) {
+        loseAudio.currentTime = 0;
         loseAudio.play();
         curSunTile.style.boxShadow = "none";
         curMoonTile.style.boxShadow = "inset 0 0 100px black";
         curSunTile.style.opacity = "50%";
-        document.getElementById("score").innerText += "\nClick the sun to retry.";
+        document.getElementById("score").innerText = "The sun died after " + score + " charge(s) at a speed of " + (20 - speed)/2 + "\nClick the sun to retry.";
         gameOver = true;
     }
-
-    if (this === curSnailTile && !snailClicked && speed < 20) {
+    else if (this === curSnailTile && !snailClicked) {
+        slowDownAudio.currentTime = 0;
         slowDownAudio.play();
         curSnailTile.style.boxShadow = "inset 0 0 100px brown";
         speed += 2;
         snailClicked = true;
-        document.getElementById("score").innerText = "Charges: " + score.toString() + "\nSpeed: " + ((20 - speed)/2).toString();
+        document.getElementById("score").innerText = "Charges: " + score.toString() + "\nSpeed: " + ((20 - speed) / 2).toString();
+
     }
-    else if (this === curSnailTile) {
-        cancelAudio.play();
+    else if (initialGameStarted) {
+        voidAudio.currentTime = 0;
+        voidAudio.play();
     }
 }
