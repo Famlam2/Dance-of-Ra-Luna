@@ -12,6 +12,7 @@ body {
 }
 
 #lore {
+    height: 185px;
     width: 455px;
     display: flex;
     align-content: center;
